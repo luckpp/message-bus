@@ -8,7 +8,7 @@ function consumer(msg) {
 }
 
 async function receiveAsync() {
-  const queueName = 'tasks';
+  const queueName = 'hello';
 
   try {
     const connection = await amqp.connect('amqp://localhost');

@@ -3,7 +3,7 @@ const uuid = require('uuid');
 const { green } = require('chalk');
 
 async function sendAsync() {
-  const queueName = 'tasks';
+  const queueName = 'hello';
   const message = `[${new Date().toISOString()}] from async channel: ${uuid.v4()}`;
   let connection = null;
 
