@@ -8,7 +8,7 @@ function consumer(msg) {
 }
 
 async function receiveAsync() {
-  const queueName = 'hello';
+  const queueName = '01-hello-queue';
 
   try {
     const connection = await amqp.connect('amqp://localhost');
@@ -17,7 +17,7 @@ async function receiveAsync() {
       durable: false,
     });
     channel.consume(queueName, consumer, {
-      noAck: true,
+      noAck: true, // automatic acknowledgment mode
     });
   } catch (err) {
     console.error(err);
