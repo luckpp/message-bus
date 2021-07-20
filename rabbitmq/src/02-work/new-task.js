@@ -14,7 +14,7 @@ async function sendAsync(text) {
 
   try {
     connection = await amqp.connect('amqp://localhost');
-    const channel = await connection.createChannel();
+    const channel = await connection.createConfirmChannel();
     await channel.assertQueue(queueName, {
       durable: true, // make sure that the queue will survive a RabbitMQ node restart
     });
@@ -22,17 +22,31 @@ async function sendAsync(text) {
     // Although it tells RabbitMQ to save the message to disk, there is still a short time window
     // when RabbitMQ has accepted a message and hasn't saved it yet.
     // If you need a stronger guarantee then you can use publisher confirms.
-    channel.sendToQueue(queueName, Buffer.from(message), { persistent: true });
-    console.log(green(`Message [${message}] sent!`));
+    const result = await channel.sendToQueue(queueName, Buffer.from(message), { persistent: true }, (err, ok) => {
+      console.log(err);
+      console.log(ok);
+
+      if (connection) {
+        connection.close();
+      }
+      process.exit(0);
+
+    });
+    console.log(green(`Message [${message}] sent! -> result [${result}]`));
   } catch (err) {
     console.error(err);
   } finally {
+    // if (connection) {
+    //   connection.close();
+    // }
+    // process.exit(0);
+
     setTimeout(function () {
       if (connection) {
         connection.close();
       }
       process.exit(0);
-    }, 500);
+    }, 15000);
   }
 }
 

@@ -15,7 +15,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "amqplib": "0.8.0"
+  },
   "devDependencies": {
     "del-cli": "^3.0.1",
     "typescript": "4.3.5"
