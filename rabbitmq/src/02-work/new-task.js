@@ -1,4 +1,5 @@
 const amqp = require('amqplib');
+const { green } = require('chalk');
 const uuid = require('uuid');
 
 async function sendAsync(text) {
@@ -22,6 +23,7 @@ async function sendAsync(text) {
     // when RabbitMQ has accepted a message and hasn't saved it yet.
     // If you need a stronger guarantee then you can use publisher confirms.
     channel.sendToQueue(queueName, Buffer.from(message), { persistent: true });
+    console.log(green(`Message [${message}] sent!`));
   } catch (err) {
     console.error(err);
   } finally {
@@ -35,7 +37,7 @@ async function sendAsync(text) {
 }
 
 sendAsync('Message 1');
-sendAsync('Message 2');
-sendAsync('Message 3');
-sendAsync('Message 4');
-sendAsync('Message 5');
+// sendAsync('Message 2');
+// sendAsync('Message 3');
+// sendAsync('Message 4');
+// sendAsync('Message 5');

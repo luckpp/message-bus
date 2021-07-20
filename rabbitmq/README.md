@@ -17,13 +17,25 @@ NOTE:
 - port **15672** is used by the **management UI plugin**
 - volume **/tmp/rabbitmq-bus** is mounted in order to gain message persistence between docker container restarts
 
-In order to activate the **management UI plugin** (in case it is not active) run:
+## Management plugin
+
+In order to activate the **management UI plugin** (in case it is not active) do the following:
+
+### Linux
 
 ```bash
 docker exec -it rabbit-bus bash # connects to the container
 rabbitmq-plugins # lists all to plugin options
 rabbitmq-plugins list # lists all the plugins
 rabbitmq-plugins enable rabbitmq_management # to enable the management plugin
+```
+
+### Windows
+
+```cmd
+cd  C:\Program Files\RabbitMQ Server\rabbitmq_server-3.8.19\sbin
+rabbitmq-plugins enable rabbitmq_management
+# restart the rabbitmq service
 ```
 
 In order to use the management UI plugin:
