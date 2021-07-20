@@ -1,18 +1,20 @@
-import { ConfirmChannel } from 'amqplib';
+import { Message } from "./message";
+import { ChannelWrapper } from "./channel-wrapper";
 
-export class BaseSender {
-  private channel: ConfirmChannel;
-  private queueName: string;
+export abstract class BaseSender<T extends Message> {
+  protected abstract _queueName: T["queueName"];
+  private _queueWrapper: ChannelWrapper;
 
-  constructor(channel: ConfirmChannel, queueName: string) {
-    this.channel = channel;
-    this.queueName = queueName;
+  constructor(queueWrapper: ChannelWrapper) {
+    this._queueWrapper = queueWrapper;
   }
-  public sendAsync(message: string): Promise<void> {
+
+  public sendAsync(type: T["type"], payload: T["payload"]): Promise<void> {
     return new Promise(async (resolve, reject) => {
-      const result = await this.channel.sendToQueue(
-        this.queueName,
-        Buffer.from(message),
+      console.log(this._queueName);
+      const result = await this._queueWrapper.channel.sendToQueue(
+        this._queueName,
+        Buffer.from(JSON.stringify({ type, payload })),
         { persistent: true },
         (err, ok) => {
           if (err) {
