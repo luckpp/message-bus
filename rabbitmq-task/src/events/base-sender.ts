@@ -1,20 +1,21 @@
+import { BusWrapper } from "./bus-wrapper";
 import { Message } from "./message";
-import { ChannelWrapper } from "./channel-wrapper";
 
 export abstract class BaseSender<T extends Message> {
   protected abstract _queueName: T["queueName"];
-  private _queueWrapper: ChannelWrapper;
+  private _busWrapper: BusWrapper;
 
-  constructor(queueWrapper: ChannelWrapper) {
-    this._queueWrapper = queueWrapper;
+  constructor(busWrapper: BusWrapper) {
+    this._busWrapper = busWrapper;
   }
 
-  public sendAsync(type: T["type"], payload: T["payload"]): Promise<void> {
+  public send(type: T["type"], payload: T["payload"]): Promise<void> {
     return new Promise(async (resolve, reject) => {
-      console.log(this._queueName);
-      const result = await this._queueWrapper.channel.sendToQueue(
+      const channel = await this._busWrapper.getChannel(this._queueName);
+      const message = JSON.stringify({ type, payload });
+      const result = await channel.sendToQueue(
         this._queueName,
-        Buffer.from(JSON.stringify({ type, payload })),
+        Buffer.from(message),
         { persistent: true },
         (err, ok) => {
           if (err) {
@@ -24,6 +25,7 @@ export abstract class BaseSender<T extends Message> {
           }
         }
       );
+      console.log(`Sent message [${message}]`);
     });
   }
 }

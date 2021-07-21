@@ -1,42 +1,26 @@
-import amqp, { Connection } from "amqplib";
 import { v4 } from "uuid";
-import { BaseSender } from "./events/base-sender";
-import { ChannelWrapper } from "./events/channel-wrapper";
+import { BusWrapper } from "./events/bus-wrapper";
 import { MessageTypes } from "./events/message-types";
-import { QueueNames } from "./events/queue-names";
 import { TestSender } from "./test-sender";
+import { Util } from "./util/util";
 
-async function sendAsync(text: string) {
-  const payload = {
-    date: new Date(),
-    text,
-    uuid: v4(),
-    delay: 4,
-  };
-  let connection: Connection;
+async function sendAsync() {
+  const busWrapper = new BusWrapper();
+  const sender = new TestSender(busWrapper);
 
-  try {
-    connection = await amqp.connect("amqp://localhost");
-    const queueName = QueueNames.worker;
-    const channel = await connection.createConfirmChannel();
-    await channel.assertQueue(queueName, {
-      durable: true, // make sure that the queue will survive a RabbitMQ node restart
-    });
-
-    const channelWrapper = new ChannelWrapper(channel);
-    const sender = new TestSender(channelWrapper);
-    await sender.sendAsync(MessageTypes.WorkerPdfParse, payload);
-
-    console.log(`Message sent!`);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    console.log("Press CTRL+C to exit!");
+  for (var i = 0; i < 3; i++) {
+    const payload = {
+      date: new Date(),
+      text: `${i}`,
+      uuid: v4(),
+      delay: 4,
+    };
+    await sender.send(MessageTypes.WorkerPdfParse, payload);
+    await Util.Delay(30 * 1000);
   }
+
+  console.log(`Message sent!`);
+  console.log("Press CTRL+C to exit!");
 }
 
-sendAsync("Message 1");
-
-setTimeout(() => {
-  console.log("Done!");
-}, 60 * 60 * 1000);
+sendAsync();
