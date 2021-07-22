@@ -1,3 +1,4 @@
 export enum QueueNames {
-  worker = "worker",
+  worker = 'worker',
+  test = 'test',
 }

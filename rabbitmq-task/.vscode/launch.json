@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Dev",
-      "program": "${workspaceFolder}\\src\\index.ts",
+      "program": "${workspaceFolder}/src/index.ts",
       "preLaunchTask": "npm: build",
       "sourceMaps": true,
       "smartStep": true,

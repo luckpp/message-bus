@@ -1,11 +1,10 @@
-import { v4 } from "uuid";
-import { BusWrapper } from "./events/bus-wrapper";
-import { MessageTypes } from "./events/message-types";
-import { TestSender } from "./test-sender";
-import { Util } from "./util/util";
+import { v4 } from 'uuid';
+import { BusWrapper } from './events/bus-wrapper';
+import { TestSender } from './test-sender';
+import { Util } from './util/util';
 
 async function sendAsync() {
-  const busWrapper = new BusWrapper();
+  const busWrapper = new BusWrapper('localhost', 5672);
   const sender = new TestSender(busWrapper);
 
   for (var i = 0; i < 3; i++) {
@@ -15,12 +14,17 @@ async function sendAsync() {
       uuid: v4(),
       delay: 4,
     };
-    await sender.send(MessageTypes.WorkerPdfParse, payload);
-    await Util.Delay(30 * 1000);
+    try {
+      await sender.send(payload);
+      console.log(`sent: `, payload);
+      await Util.Delay(30 * 1000);
+    } catch (err) {
+      console.log(JSON.stringify(err));
+    }
   }
 
   console.log(`Message sent!`);
-  console.log("Press CTRL+C to exit!");
+  console.log('Press CTRL+C to exit!');
 }
 
 sendAsync();
