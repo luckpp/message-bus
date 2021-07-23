@@ -1,4 +1,5 @@
 import amqp, { Connection, ConfirmChannel } from 'amqplib';
+import PubSub from 'pubsub-js';
 import { Util } from '../util/util';
 import { QueueNames } from './queue-names';
 
@@ -48,12 +49,36 @@ export class BusWrapper {
     });
   }
 
-  public async getChannel(queueName: QueueNames): Promise<ConfirmChannel> {
+  public async getSendChannel(
+    queueName: QueueNames
+  ): Promise<ConfirmChannel | null> {
     await this.connect();
-    this._channel!.assertQueue(queueName, {
-      durable: true, // make sure that the queue will survive a RabbitMQ node restart
+    await this.assertQueue(queueName);
+    return this._channel;
+  }
+
+  public async getConsumeChannel(
+    queueName: QueueNames
+  ): Promise<ConfirmChannel | null> {
+    await this.connect();
+    await this.assertQueue(queueName);
+    // This tells RabbitMQ not to give more than one message to a worker at a time.  Or, in other words,
+    // don't dispatch a new message to a worker until it has processed and acknowledged the previous one.
+    // Instead, it will dispatch it to the next worker that is not still busy.
+    if (this._channel) {
+      this._channel.prefetch(1);
+    }
+    return this._channel;
+  }
+
+  private async assertQueue(queueName: QueueNames) {
+    await this.execute(async () => {
+      if (this._channel) {
+        this._channel.assertQueue(queueName, {
+          durable: true, // make sure that the queue will survive a RabbitMQ node restart
+        });
+      }
     });
-    return this._channel!;
   }
 
   private async execute(operation: () => Promise<void>): Promise<void> {

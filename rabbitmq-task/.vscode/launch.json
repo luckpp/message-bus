@@ -15,7 +15,8 @@
       ],
       "env": {
         "NODE_ENV": "dev"
-      }
+      },
+      "console": "integratedTerminal"
     },
     {
       "type": "node",

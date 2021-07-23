@@ -16,9 +16,14 @@ export abstract class BaseSender<T extends Message> {
   public send(payload: T['payload']): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
-        const channel = await this._busWrapper.getChannel(this._queueName);
+        const channel = await this._busWrapper.getSendChannel(this._queueName);
+        if (!channel) {
+          return reject(
+            new Error(`Can not create channel for queue [${this._queueName}]`)
+          );
+        }
         const message = JSON.stringify({ type: this._messageType, payload });
-        const result = await channel.sendToQueue(
+        await channel.sendToQueue(
           this._queueName,
           Buffer.from(message),
           { persistent: true },
