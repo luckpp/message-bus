@@ -1,5 +1,4 @@
 import { BaseConsumer } from './events/base-consumer';
-import { BusWrapper } from './events/bus-wrapper';
 import { ConnectionPool } from './events/connection-pool';
 import { MessageTypes } from './events/message-types';
 import { QueueNames } from './events/queue-names';

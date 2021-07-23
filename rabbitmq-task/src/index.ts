@@ -15,12 +15,12 @@ async function sendAsync() {
       pdfPath: `/tmp/file_${i}.pdf`,
     };
     try {
+      console.log(`sending: `, payload);
       await sender.send(payload);
       await Util.Delay(10 * 1000);
-      console.log(`sent: `, payload);
     } catch (err) {
-      console.log(`failed: `, payload);
-      await Util.Delay(20 * 1000);
+      console.log(`sending failed: `, payload);
+      await Util.Delay(10 * 1000);
     }
   }
 
@@ -33,13 +33,13 @@ async function consumeAsync() {
     const busWrapper = new BusWrapper('localhost', 5672);
     const connectionPool = new ConnectionPool(busWrapper);
     const consumer = new PdfParseConsumer(connectionPool);
-    await consumer.consume();
+    await consumer.startConsume();
   } catch (err) {
     console.log('ERR: ', err);
   }
 }
 
-// sendAsync();
+sendAsync();
 consumeAsync();
 
 // setTimeout(() => {

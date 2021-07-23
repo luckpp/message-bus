@@ -1,8 +1,8 @@
 import { ConfirmChannel, ConsumeMessage } from 'amqplib';
 import PubSub from 'pubsub-js';
-import { BusWrapper } from './bus-wrapper';
 import { ConnectionPool } from './connection-pool';
 import { Message } from './message';
+import { MessageWrapper } from './message-wrapper';
 
 export abstract class BaseConsumer<T extends Message> {
   protected abstract _queueName: T['queueName'];
@@ -16,16 +16,16 @@ export abstract class BaseConsumer<T extends Message> {
     this._subscriptionToken = null;
   }
 
-  public async consume(): Promise<void> {
+  public async startConsume(): Promise<void> {
     if (!this._subscriptionToken) {
       const topic = `${this._queueName}.${this._messageType}`;
       this._subscriptionToken = PubSub.subscribe(
         topic,
-        (topic: string, data: any) => {
-          console.log(topic, data);
+        (topic: string, messageWrapper: MessageWrapper) => {
+          this.handleMessage(topic, messageWrapper);
         }
       );
-      await this._connectionPool.listenToQueue(this._queueName);
+      await this._connectionPool.startConsume(this._queueName);
     }
   }
 
@@ -33,6 +33,20 @@ export abstract class BaseConsumer<T extends Message> {
     if (this._subscriptionToken) {
       PubSub.unsubscribe(this._subscriptionToken);
       this._subscriptionToken = null;
+    }
+  }
+
+  private handleMessage(topic: string, messageWrapper: MessageWrapper): void {
+    const { message, channel, channelMessage } = messageWrapper;
+
+    console.log('received: ', topic, message);
+
+    if (channel && channelMessage) {
+      try {
+        channel.ack(channelMessage);
+      } catch (err) {
+        console.error('can not ack', message);
+      }
     }
   }
 

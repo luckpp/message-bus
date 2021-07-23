@@ -1,7 +1,5 @@
 import { BusWrapper } from './bus-wrapper';
 import { Message } from './message';
-import { MessageTypes } from './message-types';
-import { QueueNames } from './queue-names';
 
 export abstract class BaseSender<T extends Message> {
   protected abstract _queueName: T['queueName'];
@@ -22,7 +20,11 @@ export abstract class BaseSender<T extends Message> {
             new Error(`Can not create channel for queue [${this._queueName}]`)
           );
         }
-        const message = JSON.stringify({ type: this._messageType, payload });
+        const message = JSON.stringify({
+          queueName: this._queueName,
+          type: this._messageType,
+          payload,
+        });
         await channel.sendToQueue(
           this._queueName,
           Buffer.from(message),
