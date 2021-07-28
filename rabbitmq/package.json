@@ -12,6 +12,7 @@
   "dependencies": {
     "amqplib": "^0.8.0",
     "chalk": "^4.1.1",
+    "rabbitmq-common": "file:../rabbitmq-common",
     "uuid": "^8.3.2"
   }
 }
