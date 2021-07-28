@@ -49,7 +49,7 @@ export class ConnectionPool {
   private async startConsumeInternal(queueName: QueueNames): Promise<void> {
     const channel = await this._busWrapper.getConsumeChannel(queueName);
     if (channel) {
-      channel.consume(
+      const { consumerTag } = await channel.consume(
         queueName,
         (channelMessage) => {
           this.messageHandler(queueName, channel, channelMessage);

@@ -32,7 +32,15 @@ export class BusWrapper {
 
       this._connection.on('close', async () => {
         this._connection = null;
-        this._channel = null;
+        try {
+          if (this._channel) {
+            this._channel.close();
+          }
+        } catch (err) {
+          // channel already closed
+        } finally {
+          this._channel = null;
+        }
         PubSub.publish('system.bus.close');
       });
       this._channel.on('error', () => {
