@@ -1,6 +1,6 @@
 {
   "name": "rabbitmq-common",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "./buildjs/index.js",
   "types": "./buildjs/index.d.ts",
@@ -16,7 +16,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "amqplib": "0.8.0"
+    "@types/amqplib": "0.8.1",
+    "@types/pubsub-js": "^1.8.2",
+    "@types/uuid": "8.3.1",
+    "amqplib": "0.8.0",
+    "chalk": "4.1.1",
+    "pubsub-js": "^1.9.3",
+    "rabbitmq-common": "file:../rabbitmq-common",
+    "ts-node": "10.1.0",
+    "uuid": "8.3.2"
   },
   "devDependencies": {
     "del-cli": "^3.0.1",

@@ -23,7 +23,7 @@ export class ConnectionPool {
       try {
         const channel = await this._busWrapper.getConsumeChannel(queueName);
         if (channel) {
-          console.log(`check ${queueName}`);
+          console.log(`Checking queue: `, queueName);
           const result = await channel.checkQueue(queueName);
           console.log(result);
         }

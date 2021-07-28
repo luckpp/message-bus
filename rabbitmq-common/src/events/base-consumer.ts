@@ -21,13 +21,15 @@ export abstract class BaseConsumer<T extends Message> {
       const topic = `${this._queueName}.${this._messageType}`;
       this._subscriptionToken = PubSub.subscribe(
         topic,
-        (topic: string, messageWrapper: MessageWrapper) => {
-          this.handleMessage(topic, messageWrapper);
+        async (topic: string, messageWrapper: MessageWrapper) => {
+          await this.handleMessage(topic, messageWrapper);
         }
       );
       await this._connectionPool.startConsume(this._queueName);
     }
   }
+
+  public abstract onMessage(message: T): Promise<void>;
 
   public stop(): void {
     if (this._subscriptionToken) {
@@ -36,10 +38,10 @@ export abstract class BaseConsumer<T extends Message> {
     }
   }
 
-  private handleMessage(topic: string, messageWrapper: MessageWrapper): void {
+  private async handleMessage(topic: string, messageWrapper: MessageWrapper): Promise<void> {
     const { message, channel, channelMessage } = messageWrapper;
 
-    console.log('received: ', topic, message);
+    await this.onMessage(message as T);
 
     if (channel && channelMessage) {
       try {
@@ -47,30 +49,6 @@ export abstract class BaseConsumer<T extends Message> {
       } catch (err) {
         console.error('can not ack', message);
       }
-    }
-  }
-
-  private consumeInternal(
-    consumeMessage: ConsumeMessage | null,
-    channel: ConfirmChannel
-  ) {
-    if (consumeMessage) {
-      const content = consumeMessage.content.toString();
-      const contentJson = JSON.parse(content) as Message;
-      console.log(` [x] Received ${content}`);
-      if (contentJson.type == this._messageType) {
-        console.log(`  [x] Done ${contentJson}`);
-        channel.ack(consumeMessage);
-      } else {
-        channel.nack(consumeMessage);
-      }
-      // setTimeout(() => {
-      //   console.log(`[${this.id}][x] Done`);
-      //   // channel.ack(consumeMessage);
-      //   channel.nack(consumeMessage);
-      // }, contentJson.payload.delay * 1000);
-    } else {
-      console.error('null message');
     }
   }
 }

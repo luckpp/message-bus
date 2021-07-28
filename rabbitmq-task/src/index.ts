@@ -1,10 +1,4 @@
-import PubSub from 'pubsub-js';
-import { BusWrapper } from './events/bus-wrapper';
-import { ConnectionPool } from './events/connection-pool';
-import { PdfParseConsumer } from './pdf-parse-consumer';
-import { PdfParseMessage } from './pdf-parse-message';
-import { PdfParseSender } from './pdf-parse-sender';
-import { Util } from './util/util';
+import { Dummy, Util, BusWrapper, ConnectionPool, PdfParseMessage, PdfParseSender, PdfParseConsumer } from 'rabbitmq-common';
 
 async function sendAsync() {
   const busWrapper = new BusWrapper('localhost', 5672);
@@ -41,12 +35,3 @@ async function consumeAsync() {
 
 sendAsync();
 consumeAsync();
-
-// setTimeout(() => {
-//   PubSub.publish(`${QueueNames.worker}.${MessageTypes.pdfParse}`, {
-//     consumeMessage: 'consumeMessage',
-//     channel: 'channel',
-//   });
-// }, 2000);
-
-//setTimeout(() => {}, 100000);
