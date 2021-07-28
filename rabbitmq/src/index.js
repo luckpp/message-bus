@@ -1,10 +1,40 @@
-const { Dummy } = require('rabbitmq-common');
+const { Dummy, BusWrapper, PdfParseSender, PdfParseMessage, Util, ConnectionPool, PdfParseConsumer } = require('rabbitmq-common');
 const { green } = require('chalk');
 
-const log = console.log;
-const dummy = new Dummy();
+async function sendAsync() {
+  const busWrapper = new BusWrapper('localhost', 5672);
+  const sender = new PdfParseSender(busWrapper);
 
-dummy.print();
+  for (var i = 0; i < 100; i++) {
+    const payload = {
+      pdfPath: `/tmp/file_${i}.pdf`,
+    };
+    try {
+      console.log(`sending: `, payload);
+      await sender.send(payload);
+      await Util.Delay(10 * 1000);
+    } catch (err) {
+      console.log(`sending failed: `, payload);
+      await Util.Delay(10 * 1000);
+    }
+  }
 
-log(green('Hello from index.js!'));
+  console.log(`Message sent!`);
+  console.log('Press CTRL+C to exit!');
+}
+
+async function consumeAsync() {
+  try {
+    const busWrapper = new BusWrapper('localhost', 5672);
+    const connectionPool = new ConnectionPool(busWrapper);
+    const consumer = new PdfParseConsumer(connectionPool);
+    await consumer.startConsume();
+  } catch (err) {
+    console.log('ERR: ', err);
+  }
+}
+
+sendAsync();
+consumeAsync();
+
 
